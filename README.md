@@ -1,7 +1,9 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
-
+[https://orm.drizzle.team/docs/get-started/mysql-new](Mysql Drizzle Setup)
+[https://orm.drizzle.team/docs/sql-schema-declaration](sql-schema-declaration)
+[https://orm.drizzle.team/docs/drizzle-kit-push](Drizzle Kit)
 First, run the development server:
 
 ```bash
