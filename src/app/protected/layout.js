@@ -1,3 +1,4 @@
+import LogoutButton from "@/features/auth/components/LogoutButton";
 import { getCurrentUser } from "../login/auth-utils";
 
 export default async function ProtectedLayout({ children }) {
@@ -12,6 +13,7 @@ export default async function ProtectedLayout({ children }) {
             <pre>
                 {JSON.stringify(user, null, 2) }
             </pre>
+            <LogoutButton />
         </div>
     );
 }
