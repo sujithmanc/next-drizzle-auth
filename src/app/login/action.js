@@ -10,6 +10,7 @@ import { set, z } from "zod";
 import crypto from "crypto"
 import { redisClient } from "@/redis/redis";
 import { createSessionForUser, generateSessionId, setRedisSession, setSessionCookie } from "./auth-utils";
+import { redirect } from "next/navigation";
 
 
 const SESSION_EXPIRATION_SECONDS = 60;
@@ -55,7 +56,7 @@ export async function loginAction(prevState, formData) {
         };
     }
     console.info('[Login Action] Validated Data:', validated.data);
-
+    let isSuccess = false;
     try {
         // 4. USER LOOKUP
         const user = await db2.query.users.findFirst({
@@ -87,15 +88,19 @@ export async function loginAction(prevState, formData) {
 
         // 8. SESSION CREATION
         await createSessionForUser(user);
-    
+
         console.info(`[Session] Set session cookie with key: ${COOKIE_SESSION_KEY}`)
         // Set up session END
-
-        return { success: true, message: "Logged in successfully!" };
+        //return { success: true, message: "Logged in successfully!" };
 
         // Create session or token here if needed
+        isSuccess = true; // Mark as successful
     } catch (error) {
         console.error('[Login Action] Error during login process:', error);
         return { success: false, message: "Server error. Please try again later." };
+    }
+
+    if (isSuccess) {
+        redirect("/");
     }
 }

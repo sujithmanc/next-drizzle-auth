@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { loginAction } from "./action";
+import Link from "next/link";
 
 export default function LoginForm() {
   const [state, formAction, isPending] = useActionState(loginAction, {
@@ -68,9 +69,9 @@ export default function LoginForm() {
 
       <p className="text-center text-sm text-slate-600 mt-8">
         Don't have an account?{" "}
-        <a href="/signup" className="text-blue-600 font-semibold hover:underline">
+        <Link href="/signup" className="text-blue-600 font-semibold hover:underline">
           Sign up
-        </a>
+        </Link>
       </p>
     </div>
   );

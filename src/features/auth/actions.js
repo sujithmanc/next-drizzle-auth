@@ -1,6 +1,8 @@
 'use server'
 
+import { removeUserFromSession } from "@/app/login/auth-utils";
 import { userService } from "@/drizzle/user-service"
+import { redirect } from "next/navigation";
 
 export async function signUpAction(formData) {
 
@@ -25,4 +27,15 @@ export async function loginAction(formData) {
   }
 
   console.log('[Login]', data)
+}
+
+export async function logoutAction() {
+  try {
+    await removeUserFromSession();
+  } catch (error) {
+    return { message: "Failed to logout" };
+  }
+
+  // Redirecting outside try/catch is a Next.js best practice
+  redirect("/login");
 }
