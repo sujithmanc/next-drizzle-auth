@@ -8,6 +8,8 @@ export async function signUpAction(formData) {
     password: formData.get('password'),
   }
 
+  
+
   console.log('[SignUp]', data)
 }
 

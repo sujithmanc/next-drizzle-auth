@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import db from "@/db/index.js";
+import db from "@/drizzle/index.js";
 import { emp } from "../../drizzle/schema";
 
 export const EmployeeService = {    
