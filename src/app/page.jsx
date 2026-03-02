@@ -1,7 +1,7 @@
 import { comparePasswords, generateSalt, hashPassword } from "@/auth/password";
 import RedisDemoData from "@/features/redis/components/RedisDemoData";
-import { emp } from "../../drizzle/schema";
 import { db2 } from "@/drizzle/db";
+import SignUpForm from "@/features/auth/components/SignUpForm";
 
 export default async function Home() {
 
@@ -20,6 +20,7 @@ export default async function Home() {
   const users = await db2.query.emp.findMany();
   return (
     <>
+      <SignUpForm />
       <RedisDemoData />
       <pre>{pass}</pre>
       <pre>{pass2}</pre>

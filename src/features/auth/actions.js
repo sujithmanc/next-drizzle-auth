@@ -1,6 +1,9 @@
 'use server'
 
+import { userService } from "@/drizzle/user-service"
+
 export async function signUpAction(formData) {
+
   const data = {
     name: formData.get('name'),
     email: formData.get('email'),
@@ -8,9 +11,11 @@ export async function signUpAction(formData) {
     password: formData.get('password'),
   }
 
-  
 
-  console.log('[SignUp]', data)
+
+  const result = await userService.insert(data);
+
+  console.log('[SignUp]', data, result)
 }
 
 export async function loginAction(formData) {

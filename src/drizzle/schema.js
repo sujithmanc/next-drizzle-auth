@@ -1,56 +1,50 @@
-import { mysqlTable, mysqlSchema, AnyMySqlColumn, foreignKey, primaryKey, int, varchar, unique, index, mysqlEnum } from "drizzle-orm/mysql-core"
-import { sql } from "drizzle-orm"
+import { mysqlTable as table } from "drizzle-orm/mysql-core";
+import * as t from "drizzle-orm/mysql-core";
 
-export const comments = mysqlTable("comments", {
-    id: int().autoincrement().notNull(),
-    text: varchar({ length: 256 }),
-    postId: int("post_id").references(() => posts.id),
-    ownerId: int("owner_id").references(() => users.id),
-},
+export const users = table(
+    "users",
+    {
+        id: t.int().primaryKey().autoincrement(),
+        firstName: t.varchar("first_name", { length: 256 }),
+        lastName: t.varchar("last_name", { length: 256 }),
+        email: t.varchar({ length: 256 }).notNull(),
+        password: t.varchar({ length: 256 }).notNull(),
+        invitee: t.int().references(() => users.id),
+        role: t.mysqlEnum(["guest", "user", "admin"]).default("guest"),
+    },
     (table) => [
-        primaryKey({ columns: [table.id], name: "comments_id" }),
-    ]);
+        t.uniqueIndex("email_idx").on(table.email)
+    ]
+);
 
-export const emp = mysqlTable("emp", {
-    empId: int("emp_id").notNull(),
-    name: varchar({ length: 30 }).notNull(),
-    email: varchar({ length: 50 }).notNull(),
-    username: varchar({ length: 20 }).notNull(),
-    password: varchar({ length: 20 }).notNull(),
-},
+export const posts = table(
+    "posts",
+    {
+        id: t.int().primaryKey().autoincrement(),
+        slug: t.varchar({ length: 256 }).$default(() => generateUniqueString(16)),
+        title: t.varchar({ length: 256 }),
+        ownerId: t.int("owner_id").references(() => users.id),
+    },
     (table) => [
-        primaryKey({ columns: [table.id], name: "emp_id" }),
-        unique("username_UNIQUE").on(table.username),
-        unique("email_UNIQUE").on(table.email),
-    ]);
+        t.uniqueIndex("slug_idx").on(table.slug),
+        t.index("title_idx").on(table.title),
+    ]
+);
 
-export const posts = mysqlTable("posts", {
-    id: int().autoincrement().notNull(),
-    slug: varchar({ length: 256 }),
-    title: varchar({ length: 256 }),
-    ownerId: int("owner_id").references(() => users.id),
-},
-    (table) => [
-        index("title_idx").on(table.title),
-        primaryKey({ columns: [table.id], name: "posts_id" }),
-        unique("slug_idx").on(table.slug),
-    ]);
+export const comments = table("comments", {
+    id: t.int().primaryKey().autoincrement(),
+    text: t.varchar({ length: 256 }),
+    postId: t.int("post_id").references(() => posts.id),
+    ownerId: t.int("owner_id").references(() => users.id),
+});
 
-export const users = mysqlTable("users", {
-    id: int().autoincrement().notNull(),
-    firstName: varchar("first_name", { length: 256 }),
-    lastName: varchar("last_name", { length: 256 }),
-    email: varchar({ length: 256 }).notNull(),
-    invitee: int(),
-    role: mysqlEnum(['guest', 'user', 'admin']).default('guest'),
-    age: int(),
-},
-    (table) => [
-        foreignKey({
-            columns: [table.invitee],
-            foreignColumns: [table.id],
-            name: "users_invitee_users_id_fk"
-        }),
-        primaryKey({ columns: [table.id], name: "users_id" }),
-        unique("email_idx").on(table.email),
-    ]);
+function generateUniqueString(length) {
+    const characters =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let uniqueString = "";
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        uniqueString += characters[randomIndex];
+    }
+    return uniqueString;
+}
