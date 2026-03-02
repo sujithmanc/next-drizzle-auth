@@ -9,6 +9,7 @@ import { cookies } from "next/headers";
 import { set, z } from "zod";
 import crypto from "crypto"
 import { redisClient } from "@/redis/redis";
+import { createSessionForUser, generateSessionId, setRedisSession, setSessionCookie } from "./auth-utils";
 
 
 const SESSION_EXPIRATION_SECONDS = 60;
@@ -19,10 +20,7 @@ const loginSchema = z.object({
     password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
-const sessionSchema = z.object({
-    id: z.string(),
-    role: z.enum(userRoles),
-});
+
 
 export async function loginActionOut(prevState, formData) {
     const rawData = Object.fromEntries(formData.entries());
@@ -88,26 +86,8 @@ export async function loginAction(prevState, formData) {
         user.id = user.id.toString();
 
         // 8. SESSION CREATION
-        console.info(`[Login Action] Creating session for user ID: ${user.id}`);
-        const sessionId = crypto.randomBytes(100).toString("hex").normalize();
-
-        console.info(`[Session] Generated session ID: ${sessionId}`);
-        // 9. Store session in Redis
-        await redisClient.set(`session:${sessionId}`, sessionSchema.parse(user), {
-            ex: SESSION_EXPIRATION_SECONDS, // 1 week in seconds
-        })
-
-        // 10. Set cookie with session ID
-        const cookiesObj = await cookies();
-
-        cookiesObj.set(COOKIE_SESSION_KEY, sessionId, {
-            secure: true,
-            httpOnly: true,
-            sameSite: "lax",
-            path: "/",
-            maxAge: SESSION_EXPIRATION_SECONDS * 1000,
-        })
-
+        await createSessionForUser(user);
+    
         console.info(`[Session] Set session cookie with key: ${COOKIE_SESSION_KEY}`)
         // Set up session END
 
