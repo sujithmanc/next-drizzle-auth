@@ -15,12 +15,11 @@ const sessionSchema = z.object({
     role: z.enum(userRoles),
 });
 
-export async function getCurrentUser({
-    redirectIfNotFound = true,
-}) {
+export async function getCurrentUser({ redirectIfNotFound }) {
     const user = await getUserFromSession();
     if (user == null) {
         if (redirectIfNotFound) {
+            console.warn("[Auth] No user found in session. Redirecting to login.");
             redirect("/login");
         }
         return null;
@@ -46,7 +45,7 @@ export async function getCurrentUser({
 export async function getUserFromSession() {
     const cookiesObj = await cookies();
     const sessionId = cookiesObj.get(COOKIE_SESSION_KEY)?.value
-    console.log(`[Session] Retrieved session ID from cookie: ${sessionId}`)
+    //console.log(`[Session] Retrieved session ID from cookie: ${sessionId}`)
     if (sessionId == null) return null
 
     return getUserSessionById(sessionId)
@@ -54,11 +53,11 @@ export async function getUserFromSession() {
 
 async function getUserSessionById(sessionId) {
     const rawUser = await redisClient.get(`session:${sessionId}`)
-    console.log(`[Session] Retrieved session data from Redis for session ID ${sessionId}:`, rawUser);
+    //console.log(`[Session] Retrieved session data from Redis for session ID ${sessionId}:`, rawUser);
     const parsed = sessionSchema.safeParse(rawUser);
-    console.log(`[Session] Parsed session data for session ID ${sessionId}:`, JSON.stringify(parsed, null, 2));
+    //console.log(`[Session] Parsed session data for session ID ${sessionId}:`, JSON.stringify(parsed, null, 2));
     const { success, data: user } = parsed;
-    console.info(`[Session] Session retrieval success: ${success} for session ID ${JSON.stringify(user, null, 2)}`);
+    //console.info(`[Session] Session retrieval success: ${success} for session ID ${JSON.stringify(user, null, 2)}`);
     return success ? user : null
 }
 
