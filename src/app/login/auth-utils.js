@@ -2,6 +2,7 @@ import { userRoles } from "@/drizzle/schema";
 import { userService } from "@/drizzle/user-service";
 import { redisClient } from "@/redis/redis";
 import crypto from "crypto";
+import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import z from "zod";
 import { fi } from "zod/v4/locales";
@@ -14,12 +15,24 @@ const sessionSchema = z.object({
     role: z.enum(userRoles),
 });
 
-export async function getLoggedInUser() {
+export async function getCurrentUser({
+    redirectIfNotFound = true,
+}) {
     const user = await getUserFromSession();
-    if (user == null) return null;
+    if (user == null) {
+        if (redirectIfNotFound) {
+            redirect("/login");
+        }
+        return null;
+    };
 
     const loggedInUser = await userService.getOne(user.id);
-    if (loggedInUser == null) return null;
+    if (loggedInUser == null) {
+        if (redirectIfNotFound) {
+            redirect("/login");
+        }
+        return null;
+    };
 
     return {
         id: loggedInUser.id,

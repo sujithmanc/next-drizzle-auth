@@ -1,7 +1,7 @@
 
 
 import { cookies } from "next/headers";
-import { getLoggedInUser, removeUserFromSession } from "./login/auth-utils";
+import { getCurrentUser, removeUserFromSession } from "./login/auth-utils";
 import LogoutButton from "@/features/auth/components/LogoutButton";
 
 export async function logoutAction() {
@@ -9,7 +9,7 @@ export async function logoutAction() {
 }
 
 export default async function Home() {
-  const sessionInfo = await getLoggedInUser();
+  const sessionInfo = await getCurrentUser( { redirectIfNotFound: true } );
 
   return (
     <>
