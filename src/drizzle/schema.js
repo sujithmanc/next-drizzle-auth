@@ -1,6 +1,10 @@
 import { mysqlTable as table } from "drizzle-orm/mysql-core";
 import * as t from "drizzle-orm/mysql-core";
 
+
+export const userRoles = ["guest", "user", "admin"];
+export const userRoleEnum = t.mysqlEnum("role", userRoles).default("guest");
+
 export const users = table(
     "users",
     {
@@ -9,8 +13,9 @@ export const users = table(
         lastName: t.varchar("last_name", { length: 256 }),
         email: t.varchar({ length: 256 }).notNull(),
         password: t.varchar({ length: 256 }).notNull(),
+        salt: t.varchar({ length: 256 }).notNull(),
         invitee: t.int().references(() => users.id),
-        role: t.mysqlEnum(["guest", "user", "admin"]).default("guest"),
+        role: userRoleEnum,
     },
     (table) => [
         t.uniqueIndex("email_idx").on(table.email)
